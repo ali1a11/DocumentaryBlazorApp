@@ -1,0 +1,110 @@
+﻿@using DocumentaryBlazorApp.Models
+@code {
+    [Parameter]
+    public List<Documentary>? Documentaries { get; set; }
+    public List<Review>? Reviews { get; set; }
+}
+<hr class="border-t-[5px] border-blue-500 my-1">
+@if (Documentaries is null || !Documentaries.Any())
+{
+    <div class="alert alert-info" style="text-align: center; margin: 0 auto; width: 50%;">
+        No documentaries found matching your criteria.
+    </div>
+
+    <img src="images/no_documentary.jpg"
+         alt="No documentaries available"
+         style="display: block; margin: 0 auto; width: 50%;" />
+
+}
+else
+{
+    <div class="row">
+        @foreach (var documentary in Documentaries)
+        {
+            var averageRating = documentary.Reviews.Any() ? documentary.Reviews.Average(r => r.Rating) : 0;
+            var voteCount = documentary.Reviews.Count;
+
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm documentary-card">
+                    <a href="/DocDetails/@documentary.Id" class="text-decoration-none text-dark">
+                        <div class="poster-container position-relative overflow-hidden">
+                            <img src="@documentary.ImageUrl"
+                                 alt="@documentary.Title"
+								 class="img-fluid poster-image" />
+        
+                            @if (!string.IsNullOrEmpty(documentary.Category))
+                            {
+                                <span class="position-absolute top-0 start-0 m-2 badge bg-primary">
+                                    @documentary.Category
+                                </span>
+                            }
+                            <div class="overlay d-flex align-items-center justify-content-center">
+                                <span class="overlay-text">View Details</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@documentary.Title</h5>
+                            <p class="card-text text-muted">
+                                <small>@documentary.Year</small>
+                            </p>
+                            <div class="text-warning">
+                                <span class="ms-1 text-dark">Average rating: @averageRating.ToString("0.0")</span>
+                            </div>
+                            <span class="ms-1 text-muted">Number of votes: @voteCount @(voteCount == 1 ? "vote" : "votes")</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+<style>
+    .poster-container {
+        height: 400px;
+        background-color: #000;
+        border-radius: 0.5rem;
+    }
+
+    .poster-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .overlay-text {
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .documentary-card:hover .poster-image {
+        transform: scale(1.05);
+        opacity: 0.7;
+    }
+
+    .documentary-card:hover .overlay {
+        opacity: 1;
+    }
+
+    .trailer-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+

@@ -1,0 +1,20 @@
+﻿@using DocumentaryBlazorApp.Models
+
+<h3>Category: @SelectedCategory</h3>
+
+@if (Documentaries is not null && SelectedCategory is not null)
+{
+    <DocumentaryGrid Documentaries="Documentaries.Where(d => d.Category == SelectedCategory).ToList()" />
+}
+else
+{
+    <p>No documentaries to display.</p>
+}
+
+@code {
+    [CascadingParameter]
+    public List<Documentary>? Documentaries { get; set; }
+
+    [Parameter]
+    public string? SelectedCategory { get; set; }
+}

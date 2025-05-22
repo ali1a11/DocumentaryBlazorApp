@@ -1,0 +1,90 @@
+﻿@page "/"
+@using DocumentaryBlazorApp.Models
+@using DocumentaryBlazorApp.Services
+
+@inject IApiClientService ApiClient
+
+<div class="documentary-app">
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="position-relative" style="width: 50%; margin: 0 auto;">
+            <input type="text"
+            class="form-control mb-2"
+            placeholder="Search documentaries..."
+            @bind="SearchText"
+            @bind:event="oninput" />
+
+        </div>
+    </div>
+
+    <div class="category-filter">
+        <div class="d-flex flex-wrap justify-content-center">
+            <!-- Category Buttons -->
+            <button class="btn btn-primary me-2 mb-2" 
+            @onclick="ShowFullListComponent">All Documentaries</button>
+
+            @foreach (var category in Categories)
+            {
+                <button class="btn btn-outline-primary me-2 mb-2"
+                @onclick="() => FilterByCategory(category)">
+                    @category
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+
+<!-- Provide filtered list as cascading value -->
+<CascadingValue Value="FilteredDocumentaries">
+    @if (currentComponent == typeof(FilteredListComponent))
+    {
+        <DynamicComponent Type="currentComponent"
+        Parameters="@(new Dictionary<string, object?> {
+                              ["SelectedCategory"] = selectedCategory
+                          })" />
+    }
+    else
+    {
+        <DynamicComponent Type="currentComponent" />
+    }
+</CascadingValue>
+
+@code {
+    private Type currentComponent = typeof(FullListComponent);
+    private List<Documentary>? Documentaries;
+    private List<string> Categories = new();
+    private string? selectedCategory = null;
+    private string SearchText { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Documentaries = await ApiClient.GetAllDocumentariesAsync();
+        Categories = await ApiClient.GetCategoriesAsync();
+    }
+
+    private void ShowFullListComponent()
+    {
+        currentComponent = typeof(FullListComponent);
+        selectedCategory = null;
+    }
+
+    private void FilterByCategory(string category)
+    {
+        selectedCategory = category;
+        currentComponent = typeof(FilteredListComponent);
+    }
+
+    private List<Documentary> FilteredDocumentaries =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? Documentaries ?? new()
+            : Documentaries?.Where(d =>
+                (!string.IsNullOrEmpty(d.Title) && d.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(d.Director) && d.Director.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(d.Category) && d.Category.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(d.Description) && d.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(d.Language.ToString()) && d.Language.ToString().Contains(SearchText, StringComparison.OrdinalIgnoreCase)) ||
+                d.Year.ToString().Contains(SearchText)
+            ).ToList() ?? new();
+}

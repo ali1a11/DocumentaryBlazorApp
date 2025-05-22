@@ -1,0 +1,385 @@
+﻿@attribute [Authorize]
+@page "/DocDetails/{Id}"
+@attribute [StreamRendering(true)]
+@using DocumentaryBlazorApp.Services
+@using DocumentaryBlazorApp.Models
+@using DocumentaryBlazorApp.Data
+@using DocumentaryBlazorApp.Components
+@using Microsoft.AspNetCore.Authorization
+
+@inject IApiClientService ApiClient
+@inject HttpClient Http
+
+
+<div class="documentary-container">
+
+    @if (notFound)
+    {
+        <div class="alert alert-warning text-center">
+            <h4>Page not found</h4>
+            <p>The requested page does not exist or was removed.</p>
+            <img src="images/404.jpg" alt="Not Found" style="width: 50%; margin: 1rem auto;" />
+        </div>
+        <a href="/">Go to Home</a>
+    }
+    else if (Documentary == null)
+    {
+        <div class="loading-container">
+            <div class="spinner-grow text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="documentary-header">
+            <h1 class="documentary-title">@Documentary.Title <span class="year-badge">(@Documentary.Year)</span></h1>
+            <div class="documentary-meta">
+                <span class="badge bg-primary me-2 fs-5 p-2">@Documentary.Category</span>
+                <span class="text-muted">@Documentary.Duration mins</span>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-5 mb-4">
+                <div class="documentary-poster-container position-relative">
+                    <img src="@Documentary?.ImageUrl"
+                         alt="@Documentary?.Title"
+                         class="documentary-poster img-fluid rounded-3 shadow-lg"
+                         loading="lazy" />
+
+                    @if (!string.IsNullOrEmpty(Documentary?.TrailerUrl))
+                    {
+                        <div class="position-absolute top-50 start-50 translate-middle p-3 text-center">
+                            <a href="@Documentary.TrailerUrl"
+                               target="_blank"
+                               class="btn btn-play-trailer">
+                                <i class="bi bi-play-fill me-2"></i> Watch Trailer
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="documentary-details">
+                    <div class="detail-section">
+                        <h4><i class="bi bi-film"></i> Synopsis</h4>
+                        <p class="synopsis">@Documentary?.Description</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="details-grid">
+                            <div><strong>Director:</strong> @Documentary?.Director</div>
+                            <div><strong>Language:</strong> @Documentary?.Language</div>
+
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4><i class="bi bi-chat-square-text"></i> Critic Review</h4>
+                        <div class="review-box">
+                            <p>@Documentary?.Review</p>
+                            <div class="review-author">- Documentary App Team</div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h5>How would you rate this documentary? (1-5)</h5>
+                        <div class="rating-section">
+
+                            <EditForm method="post" OnValidSubmit="SubmitRating" Model="Review" FormName="dsfs">
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+
+                                <input type="hidden" name="Review.DocumentaryId" value="@Documentary?.Id" />
+
+                                <input type="hidden" name="Review.DatePosted" value="@DateTime.Now" />
+
+                                <div class="form-group" style="max-width: 140px;">
+                                    <InputSelect id="rating" @bind-Value="Review.Rating" class="form-select">
+                                        <option value="" disabled selected>Select a rating</option>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <option value="@i" class="star-rating-option">
+                                                <span>@i</span>
+                                                <span class="star-filled">@string.Concat(Enumerable.Repeat("★", i))</span>
+                                                @if (i < 5)
+                                                {
+                                                    <span class="star-empty">@string.Concat(Enumerable.Repeat("☆", 5 - i))</span>
+                                                }
+                                            </option>
+                                        }
+                                    </InputSelect>
+
+                                </div>
+                                <ValidationMessage For="@(() => Review.Rating)" />
+                                <button type="submit" class="btn btn-primary" style="width: 140px;">Submit</button>
+                            </EditForm>
+                            <div class="row">
+
+                                <div class="card-body">
+
+                                    <div>
+                                        <span><strong>Average rating: </strong> @AverageRating.ToString("0.0")</span>
+                                    </div>
+
+                                    <div>
+                                        <span><strong>Number of votes: </strong> @VoteCount @(VoteCount == 1 ? "vote" : "votes")</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    private bool notFound = false;
+
+    private Documentary? Documentary { get; set; }
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private decimal AverageRating { get; set; }
+    private int VoteCount { get; set; }
+
+    [SupplyParameterFromForm]
+    public Review Review { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(Id) && int.TryParse(Id, out var docId))
+            {
+                Documentary = await ApiClient.GetDocumentaryByIdAsync(docId);
+                if (Documentary == null)
+                {
+                    notFound = true;
+                    return;
+                }
+
+                Review.DocumentaryId = Documentary.Id;
+                Review.DatePosted = DateTime.Now;
+
+                await LoadReviewStats();
+            }
+            else
+            {
+                notFound = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex.Message);
+            notFound = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+
+
+    private async Task LoadReviewStats()
+    {
+        var reviews = await ApiClient.GetReviewsForDocumentaryAsync(Documentary.Id);
+
+        if (reviews.Any())
+        {
+            AverageRating = (decimal)reviews.Average(r => r.Rating);
+            VoteCount = reviews.Count;
+        }
+        else
+        {
+            AverageRating = 0;
+            VoteCount = 0;
+        }
+    }
+
+    private async Task SubmitRating()
+    {
+        isSubmitting = true;
+        try
+        {
+
+            await ApiClient.AddReview(Review);
+
+            // Refresh the rating stats after submission
+            await LoadReviewStats();
+
+            // Clear the form for another rating
+            Review = new Review
+                {
+                    DocumentaryId = Documentary.Id,
+                    DatePosted = DateTime.Now
+                };
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed to submit your rating. Please try again.";
+            Console.Error.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}
+
+
+<style>
+    .documentary-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0.5rem;
+    }
+
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+    }
+
+    .documentary-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .documentary-title {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .year-badge {
+        font-weight: normal;
+        font-size: 1.5rem;
+        color: #7f8c8d;
+    }
+
+    .documentary-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .documentary-poster-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .documentary-poster {
+        width: 100%;
+        height: auto;
+        transition: transform 0.3s ease;
+    }
+
+    .documentary-poster-container:hover .documentary-poster {
+        transform: scale(1.03);
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+        .detail-section h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .detail-section h4 i {
+                margin-right: 0.5rem;
+                color: #3498db;
+            }
+
+    .synopsis {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #34495e;
+        background-color: #f8f9fa;
+        border-left: 4px solid #3498db;
+        padding: 0.5rem;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        border-left: 4px solid #3498db;
+        background-color: #f8f9fa;
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .review-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #3498db;
+        padding: 0.5rem;
+        border-radius: 0 0.25rem 0.25rem 0;
+    }
+
+    .review-author {
+        font-style: italic;
+        text-align: right;
+        color: #7f8c8d;
+        margin-top: 0.5rem;
+    }
+
+    .rating-section {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid #3498db;
+    }
+
+    .documentary-poster-container {
+        transition: all 0.3s ease;
+    }
+
+    .btn-play-trailer {
+        opacity: 0.9;
+        background-color: #ff0000;
+        color: white;
+        padding: 10px 25px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-play-trailer:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+    .star-rating-option {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .star-filled {
+        color: #FFD700; /* Gold */
+    }
+
+    .star-empty {
+        color: #CCCCCC; /* Light gray for empty stars */
+    }
+
+</style>

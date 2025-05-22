@@ -1,0 +1,10 @@
+﻿@using DocumentaryBlazorApp.Models
+
+@code {
+    [CascadingParameter]
+    public List<Documentary>? Documentaries { get; set; }
+}
+
+<h3>All Documentaries</h3>
+
+<DocumentaryGrid Documentaries="Documentaries" />
