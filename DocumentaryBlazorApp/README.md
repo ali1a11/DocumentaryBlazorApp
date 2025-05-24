@@ -45,11 +45,11 @@ Documentary Explorer er en moderne webapplikasjon utviklet med **Blazor (.NET 8)
 ### **Installasjon**  
 1. Klon repoet:  
    ```bash
-   git clone https://github.com/ditt-brukernavn/DocumentaryExplorer.git
+   git clone https://github.com/ali1a11/DocumentaryBlazorApp.git
    ```
 2. Naviger til prosjektmappen:  
    ```bash
-   cd DocumentaryExplorer
+   cd DocumentaryBlazorApp
    ```
 3. Kjør applikasjonen:  
    ```bash
