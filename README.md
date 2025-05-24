@@ -64,7 +64,7 @@ Documentary Explorer er en moderne webapplikasjon utviklet med **Blazor (.NET 8)
 
 ## **📂 Prosjektstruktur**  
 ```
-DocumentaryExplorer/
+DocumentaryBlazorApp/
 │
 ├── Controllers/          # API-endepunkter
 │   ├── DocumentaryApiController.cs
@@ -86,10 +86,9 @@ DocumentaryExplorer/
 ├── Components/           # Blazor-komponenter
 │   ├── Pages/            # Routbare sider
 │   │   ├── Home.razor
-│   │   └── DocDetails.razor
-│   │
-│   ├── Shared/           # Gjenbrukbare UI-komponenter
+│   │   ├── DocDetails.razor
 │   │   ├── DocumentaryGrid.razor
+│   │   ├── FullListComponent.razor
 │   │   └── FilteredListComponent.razor
 │   │
 │   ├── Account/          # Autentisering
