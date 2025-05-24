@@ -22,7 +22,7 @@ builder.Services.AddScoped<IDocumentaryService, DocumentaryService>();
 
 builder.Services.AddHttpClient<IApiClientService, ApiClientService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7135/"); // API URL
+    client.BaseAddress = new Uri("https://localhost:7135/");
 });
 
 builder.Services.AddSwaggerGen();
