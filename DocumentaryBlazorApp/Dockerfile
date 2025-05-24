@@ -2,40 +2,28 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project files and restore
-COPY ["DocumentaryBlazorApp.csproj", "."]
+# Copy project files and restore dependencies
+COPY ["DocumentaryBlazorApp.csproj", "./"]
 RUN dotnet restore "DocumentaryBlazorApp.csproj"
 
 # Copy everything else and build
 COPY . .
-RUN dotnet build "DocumentaryBlazorApp.csproj" -c Release -o /app/build
-
-# Publish stage
-FROM build AS publish
-RUN dotnet publish "DocumentaryBlazorApp.csproj" -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Create Data directory and set permissions
-RUN mkdir -p /app/Data && \
-    chmod 777 /app/Data
+# Copy published files from build stage
+COPY --from=build /app/publish .
 
-# Copy published app and ensure SQLite DB exists
-COPY --from=publish /app/publish .
-RUN touch /app/Data/app.db && \
-    chmod 666 /app/Data/app.db
+# Ensure SQLite database is writable (if using persistent storage)
+RUN mkdir -p /app/Data && chmod 777 /app/Data
 
-# Environment configuration
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:8080
-ENV ConnectionStrings__DefaultConnection="Data Source=/app/Data/app.db"
+# Expose port (Blazor Server typically uses 5000/5001)
+EXPOSE 80
+EXPOSE 443
 
-# Apply EF Core migrations (if needed)
-# RUN dotnet ef database update
-
-EXPOSE 8080
 ENTRYPOINT ["dotnet", "DocumentaryBlazorApp.dll"]
 
 
