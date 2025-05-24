@@ -15,6 +15,7 @@ namespace DocumentaryBlazorApp.Controllers
             _service = service;
         }
 
+        // Retrieves a list of all documentaries.
         // GET: api/DocumentaryApi
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -23,6 +24,7 @@ namespace DocumentaryBlazorApp.Controllers
                 return Ok(docs);
         }
 
+        // Retrieves a specific documentary by its ID.
         // GET: api/DocumentaryApi/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
@@ -33,6 +35,7 @@ namespace DocumentaryBlazorApp.Controllers
             return Ok(doc);
         }
 
+        // Retrieves all reviews for a specific documentary.
         // GET: api/DocumentaryApi/5/reviews
         [HttpGet("{id}/reviews")]
         public async Task<IActionResult> GetReviews(int id)
@@ -41,7 +44,7 @@ namespace DocumentaryBlazorApp.Controllers
             return Ok(reviews);
         }
 
-        // Returns a distinct list of all available categories.
+        // Retrieves a distinct list of all available categories.
         // GET: api/DocumentaryApi/categories
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
@@ -50,7 +53,7 @@ namespace DocumentaryBlazorApp.Controllers
             return Ok(categories);
         }
 
-        // Returns all documentaries matching the specified category.
+        // Retrieves all documentaries matching the specified category.
         // GET: api/DocumentaryApi/category/{category}
         [HttpGet("category/{category}")]
         public async Task<IActionResult> GetByCategory(string category)

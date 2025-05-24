@@ -16,6 +16,7 @@ namespace DocumentaryBlazorApp.Controllers
             _service = service;
         }
 
+        // Retrieves all reviews.
         // GET: api/ReviewApi
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -24,6 +25,7 @@ namespace DocumentaryBlazorApp.Controllers
             return Ok(reviews);
         }
 
+        // Retrieves all reviews for a specific documentary.
         // GET: api/ReviewApi/Documentary/5
         [HttpGet("Documentary/{documentaryId}")]
         public async Task<IActionResult> GetReviewsForDocumentary(int documentaryId)
@@ -32,6 +34,7 @@ namespace DocumentaryBlazorApp.Controllers
             return Ok(reviews);
         }
 
+        // Adds a new review for a documentary.
         // POST: api/ReviewApi
         [HttpPost]
        [SwaggerRequestExample(typeof(Review), typeof(ReviewExample))]
