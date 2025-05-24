@@ -1,4 +1,4 @@
-﻿# **📽️ Documentary Explorer - Blazor Web App**  
+﻿# ** Documentary App **  
 
 **En webapplikasjon for å søke, utforske og vurdere dokumentarer.**  
 
@@ -9,8 +9,8 @@
 ---
 
 ## **📌 Om prosjektet**  
-Documentary Explorer er en moderne webapplikasjon utviklet med **Blazor (.NET 8)** som lar brukere:  
-🔍 **Søke** etter dokumentarer basert på tittel, kategori eller beskrivelse  
+Documentary App er en webapplikasjon utviklet med **Blazor (.NET 8)** som lar brukere:  
+🔍 **Søke** etter dokumentarer  
 ⭐ **Vurdere** dokumentarer (kun for registrerte brukere)  
 📂 **Bla gjennom kategorier** (Natur, Historie, Teknologi, osv.)  
 🎬 **Se detaljer** om dokumentarer (regissør, utgivelsesår, trailer)  
