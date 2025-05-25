@@ -17,10 +17,10 @@ Documentary App er en webapplikasjon utviklet med **Blazor (.NET 8)** som lar br
 ---
 🔑 Testbruker
 For rask tilgang kan du bruke følgende testkonto:
-**E-post**: test@test.com
-**Passord**: Test123#
+- **E-post**: test@test.com
+- **Passord**: Test123#
 
-Eller registrer en ny bruker via "Register"-linken.
+- Eller registrer en ny bruker via "Register"-linken.
 ---
 
 ## **🛠️ Teknologier**  
