@@ -14,7 +14,13 @@ Documentary App er en webapplikasjon utviklet med **Blazor (.NET 8)** som lar br
 ⭐ **Vurdere** dokumentarer (kun for registrerte brukere)  
 📂 **Bla gjennom kategorier** (Natur, Historie, Teknologi, osv.)  
 🎬 **Se detaljer** om dokumentarer (regissør, utgivelsesår, trailer)  
+---
+🔑 Testbruker
+For rask tilgang kan du bruke følgende testkonto:
+**E-post**: test@test.com
+**Passord**: Test123#
 
+Eller registrer en ny bruker via "Register"-linken.
 ---
 
 ## **🛠️ Teknologier**  
