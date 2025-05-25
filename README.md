@@ -53,7 +53,7 @@ Documentary App er en webapplikasjon utviklet med **Blazor (.NET 8)** som lar br
    ```
 3. Kjør applikasjonen:  
    ```bash
-   dotnet run
+   dotnet run --launch-profile "https"
    ```
 4. Åpne i nettleseren:  
    ```
