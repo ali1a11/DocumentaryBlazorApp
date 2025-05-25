@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DocumentaryBlazorApp.Services;
-using DocumentaryBlazorApp.Models;
 
 namespace DocumentaryBlazorApp.Controllers
 {
@@ -35,14 +34,6 @@ namespace DocumentaryBlazorApp.Controllers
             return Ok(doc);
         }
 
-        // Retrieves all reviews for a specific documentary.
-        // GET: api/DocumentaryApi/5/reviews
-        [HttpGet("{id}/reviews")]
-        public async Task<IActionResult> GetReviews(int id)
-        {
-            var reviews = await _service.GetReviewsForDocumentaryAsync(id);
-            return Ok(reviews);
-        }
 
         // Retrieves a distinct list of all available categories.
         // GET: api/DocumentaryApi/categories

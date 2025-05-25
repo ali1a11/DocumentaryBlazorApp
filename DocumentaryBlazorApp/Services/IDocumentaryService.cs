@@ -6,7 +6,6 @@ namespace DocumentaryBlazorApp.Services
     {
         // Documentaries
         Task<List<Documentary>?> GetAllDocumentariesAsync(); 
-        Task<List<Documentary>?> GetAllDocumentariesAsyncWithoutReviews();
         Task<Documentary?> GetDocumentaryByIdAsync(int id);
         Task<List<Documentary>> GetDocumentariesByCategoryAsync(string category);
 

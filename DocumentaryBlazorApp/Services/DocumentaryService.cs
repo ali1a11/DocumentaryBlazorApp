@@ -14,6 +14,7 @@ namespace DocumentaryBlazorApp.Services
             this.documentaryDBContext = documentaryDBContext;
         }
 
+        // Documentaries
         public async Task<List<Documentary>?> GetAllDocumentariesAsync()
         {
             return await documentaryDBContext.Documentaries
@@ -21,16 +22,11 @@ namespace DocumentaryBlazorApp.Services
                 .ToListAsync();
         }
 
-        public async Task<List<Documentary>?> GetAllDocumentariesAsyncWithoutReviews()
+        public async Task<Documentary?> GetDocumentaryByIdAsync(int id)
         {
             return await documentaryDBContext.Documentaries
-                .ToListAsync();
-        }
-
-        public async Task<List<Review>> GetAllReviewsAsync()
-        {
-            return await documentaryDBContext.Reviews
-                .ToListAsync();
+                .Include(d => d.Reviews)
+                .SingleOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<Documentary>> GetDocumentariesByCategoryAsync(string category)
@@ -40,6 +36,7 @@ namespace DocumentaryBlazorApp.Services
                 .ToListAsync();
         }
 
+        // Categories
         public async Task<List<string>> GetCategoriesAsync()
         {
             var categories = await documentaryDBContext.Documentaries
@@ -50,11 +47,11 @@ namespace DocumentaryBlazorApp.Services
             return categories;
         }
 
-        public async Task<Documentary?> GetDocumentaryByIdAsync(int id)
+        // Reviews
+        public async Task<List<Review>> GetAllReviewsAsync()
         {
-            return await documentaryDBContext.Documentaries
-                .Include(d => d.Reviews)
-                .SingleOrDefaultAsync(x => x.Id == id);
+            return await documentaryDBContext.Reviews
+                .ToListAsync();
         }
 
         public async Task<List<Review>> GetReviewsForDocumentaryAsync(int documentaryId)
